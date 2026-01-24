@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/SimulationChartConfig.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/SimulationChartConfig.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React from "react";
+import { CHART_COLORS } from "../data/presets";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { generateAndDownloadCSV } from "../utils/exportHandler";
+
+/**
+ * Component: Chart (SimulationChartConfig)
+ * Visualizes the simulation results using a dual-view approach:
+ * 1. Interactive Line Chart (Recharts): Plots Blocking Probability vs. the Variable parameter.
+ * 2. Data Table: A detailed tabular view of the exact values for further inspection.
+ *
+ * Thesis Context:
+ * This component provides the visual proof of the mathematical models. It allows the user
+ * to observe the non-linear relationship between Traffic Load/Capacity and Blocking Probability
+ * across multiple service classes simultaneously.
+ *
+ * @param {string} theme - Current UI theme ('light' or 'dark').
+ * @param {boolean} loading - State flag showing the spinner during calculation.
+ * @param {Object} results - The dataset returned from the Python backend (x_label, chart_data).
+ * @param {Object} inputs - Simulation input state (used for export context).
+ * @param {Object} simConfig - Simulation control configuration (used for export context).
+ * @param {string} selectedScenario - ID of the active scenario (used for export context).
+ */
+const Chart = ({
+    theme,
+    loading,
+    results,
+    inputs,
+    simConfig,
+    selectedScenario
+}) => {
+
+    // Extract dynamic keys for services (excluding the 'x' axis key)
+    const dataKeys = results &amp;&amp; results.chart_data.length > 0
+        ? Object.keys(results.chart_data[0]).filter(key => key !== 'x')
+        : [];
+
+    // Helper to format scientific numbers for cleaner display
+    const formatNumber = (num) => {
+        if (num === 0) return "0";
+        if (Math.abs(num) &lt; 0.01) return num.toExponential(4);
+        return num.toFixed(6);
+    };
+
+    return (
+        &lt;>
+            &lt;div className="card-body d-flex flex-column align-items-center justify-content-center" style={{ minHeight: "500px" }}>
+                {loading ? (
+                    &lt;div className="text-center animate__animated animate__pulse animate__infinite">
+                        &lt;div className="spinner-grow text-primary" role="status" style={{ width: "3rem", height: "3rem" }}>&lt;/div>
+                        &lt;h4 className="mt-3 fw-light">Simulating Network...&lt;/h4>
+                    &lt;/div>
+                ) : results ? (
+                    &lt;div className="w-100 h-100 animate__animated animate__fadeIn" style={{ paddingBottom: '80px' }}>
+
+                        {/* --- CHART VISUALIZATION --- */}
+                        &lt;div className="chart-container">
+                            &lt;h3 className="text-center mb-4 fw-bold" style={{ color: 'var(--text-main)', fontSize: '18px' }}>
+                                📉 {results.x_label} vs Blocking Probability
+                            &lt;/h3>
+                            &lt;ResponsiveContainer width="100%" height="100%">
+                                &lt;LineChart data={results.chart_data} margin={{ top: 10, right: 30, left: 20, bottom: 50 }}>
+                                    &lt;CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? "#333" : "#f0f0f0"} vertical={false} />
+                                    &lt;XAxis
+                                        dataKey="x"
+                                        stroke={theme === 'dark' ? '#555' : '#ccc'}
+                                        tick={{ fill: theme === 'dark' ? '#aaa' : '#666' }}
+                                        label={{
+                                            value: results.x_label,
+                                            position: 'insideBottom',
+                                            offset: -15,
+                                            fill: theme === 'dark' ? '#e0e0e0' : '#000000',
+                                            style: { fontWeight: 'bold', fontSize: '14px' }
+                                        }}
+                                    />
+                                    &lt;YAxis
+                                        stroke={theme === 'dark' ? '#555' : '#ccc'}
+                                        tick={{ fill: theme === 'dark' ? '#aaa' : '#666' }}
+                                        label={{
+                                            value: 'Blocking Prob. (%)',
+                                            angle: -90,
+                                            position: 'insideLeft',
+                                            fill: theme === 'dark' ? '#e0e0e0' : '#000000',
+                                            style: { fontWeight: 'bold', textAnchor: 'middle', fontSize: '14px' }
+                                        }}
+                                    />
+                                    &lt;Tooltip
+                                        contentStyle={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-main)', borderRadius: '8px' }}
+                                        formatter={(value) => formatNumber(value) + " %"}
+                                    />
+                                    &lt;Legend verticalAlign="top" height={40} iconType="circle" />
+                                    {dataKeys.map((key, index) => (
+                                        &lt;Line
+                                            key={key}
+                                            type="monotone"
+                                            dataKey={key}
+                                            name={`Service ${index + 1}`}
+                                            stroke={CHART_COLORS[index % CHART_COLORS.length]}
+                                            strokeWidth={3}
+                                            dot={{ r: 0 }}
+                                            activeDot={{ r: 6 }}
+                                        />
+                                    ))}
+                                &lt;/LineChart>
+                            &lt;/ResponsiveContainer>
+                        &lt;/div>
+
+                        {/* --- DATA TABLE &amp; EXPORT --- */}
+                        &lt;div style={{ marginTop: '40px', fontFamily: "'Inter', sans-serif" }}>
+                            &lt;div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                                &lt;h3 style={{ color: theme === 'dark' ? '#e0e0e0' : '#2c3e50', margin: 0, fontSize: '18px', fontWeight: '600' }}>
+                                    📋 Detailed Data Table
+                                &lt;/h3>
+                                {/* BUTTON: Calls the external export utility function */}
+                                &lt;button
+                                    onClick={() => generateAndDownloadCSV(results, inputs, simConfig, selectedScenario)}
+                                    className={`btn btn-sm btn-outline-success fw-bold d-flex align-items-center gap-2`}
+                                    title="Download Excel Report"
+                                >
+                                    &lt;span>📊&lt;/span> Export to Excel
+                                &lt;/button>
+                            &lt;/div>
+
+                            &lt;div className="data-table-container">
+                                &lt;table className="custom-table w-100">
+                                    &lt;thead>
+                                        &lt;tr>
+                                            &lt;th className="p-2 border-bottom">{results.x_label} (X)&lt;/th>
+                                            {dataKeys.map((key, index) => (
+                                                &lt;th key={key} className="p-2 border-bottom" style={{ color: CHART_COLORS[index % CHART_COLORS.length] }}>
+                                                    Service {index + 1} (%)
+                                                &lt;/th>
+                                            ))}
+                                        &lt;/tr>
+                                    &lt;/thead>
+                                    &lt;tbody>
+                                        {results.chart_data.map((row, rowIndex) => (
+                                            &lt;tr key={rowIndex}>
+                                                &lt;td className="fw-bold p-2 border-bottom">{row.x}&lt;/td>
+                                                {dataKeys.map((key, colIndex) => (
+                                                    &lt;td key={key} className="p-2 border-bottom" style={{ color: CHART_COLORS[colIndex % CHART_COLORS.length], fontFamily: 'monospace' }}>
+                                                        {formatNumber(row[key])}
+                                                    &lt;/td>
+                                                ))}
+                                            &lt;/tr>
+                                        ))}
+                                    &lt;/tbody>
+                                &lt;/table>
+                            &lt;/div>
+                        &lt;/div>
+
+                    &lt;/div >
+                ) : (
+                    &lt;div className="text-center opacity-50">
+                        &lt;h1 style={{ fontSize: "4rem", filter: "grayscale(1)" }}>📉&lt;/h1>
+                        &lt;h3 className="fw-light">Waiting for Simulation...&lt;/h3>
+                        &lt;p>Configure parameters and click "RUN" to start.&lt;/p>
+                    &lt;/div>
+                )}
+            &lt;/div>
+        &lt;/>
+    );
+};
+
+export default Chart;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#CHART_COLORS">CHART_COLORS</a></li><li><a href="global.html#Chart">Chart</a></li><li><a href="global.html#CompactGroupConfig">CompactGroupConfig</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#HistoryDrawer">HistoryDrawer</a></li><li><a href="global.html#InfoTooltip">InfoTooltip</a></li><li><a href="global.html#PRESETS">PRESETS</a></li><li><a href="global.html#ResourceConfig">ResourceConfig</a></li><li><a href="global.html#ScenarioConfig">ScenarioConfig</a></li><li><a href="global.html#SimulationControlConfig">SimulationControlConfig</a></li><li><a href="global.html#UI_COLORS">UI_COLORS</a></li><li><a href="global.html#generateAndDownloadCSV">generateAndDownloadCSV</a></li><li><a href="global.html#useSimulationLogic">useSimulationLogic</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Fri Jan 23 2026 22:30:11 GMT+0200 (Χειμερινή ώρα Ανατολικής Ευρώπης)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

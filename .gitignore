@@ -1,0 +1,32 @@
+# --- Python (Backend) ---
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+instance/
+.pytest_cache/
+
+# --- Node.js / React (Frontend) ---
+node_modules/
+dist/
+build/
+.npm
+.eslintcache
+
+# --- OS / System Files ---
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# --- Logs ---
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# --- IDE Settings (Optional - VS Code) ---
+.vscode/
+.idea/

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/SimulationControlConfig.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/SimulationControlConfig.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React from 'react';
+import { UI_COLORS } from "../data/presets"; // &lt;--- IMPORT COLORS
+
+/**
+ * Component: SimulationControlConfig
+ * Manages the parameters of the simulation loop (The "Experiment").
+ *
+ * Thesis Context:
+ * In scientific simulations, we need to observe how a system behaves as one variable changes.
+ * This component allows the user to define:
+ * 1. The Independent Variable (X-Axis): What are we changing? (e.g., Traffic Load).
+ * 2. The Target Limit: When should the simulation stop?
+ * 3. The Step Size: How fine-grained should the data points be?
+ *
+ * @param {string|null} error - Validation error message (e.g., "Step too large").
+ * @param {Object} simConfig - Current configuration state (variable, target, step).
+ * @param {Function} handleSimConfigChange - Handler to update configuration values.
+ */
+const SimulationControlConfig = ({
+    error,
+    simConfig,
+    handleSimConfigChange,
+}) => {
+
+    // Logic: Only "Traffic Load" supports decimal values (floats).
+    // Capacity units (Server, Fronthaul, Antennas) must be integers.
+    const isFloatAllowed = simConfig.variable === 'load';
+    const stepValue = isFloatAllowed ? "0.1" : "1";
+
+    // Prevent user from typing decimals if the selected variable is an integer type
+    const handleKeyDown = (e) => {
+        if (!isFloatAllowed) {
+            if (e.key === '.' || e.key === ',') {
+                e.preventDefault();
+            }
+        }
+    };
+
+    return (
+        &lt;>
+            &lt;div className="resource-box">
+
+                {/* SECTION HEADER USING ACTION COLOR */}
+                &lt;h6 className="section-header mb-3 fw-bold d-flex align-items-center gap-2"
+                    style={{ color: UI_COLORS.actionButton }}>
+                    &lt;span>🧪&lt;/span> Experiment Setup
+                &lt;/h6>
+
+                {/* Variable Selection */}
+                &lt;div className="mb-3">
+                    &lt;label className="form-label small fw-bold">Independent Variable (X-Axis)&lt;/label>
+                    &lt;select
+                        className="form-select form-select-sm fw-bold"
+                        style={{ borderColor: UI_COLORS.actionButton }}
+                        value={simConfig.variable}
+                        onChange={(e) => handleSimConfigChange("variable", e.target.value)}
+                    >
+                        &lt;option value="load">Traffic Load (Erlang)&lt;/option>
+                        &lt;option value="fronthaul">Fronthaul Capacity&lt;/option>
+                        &lt;option value="server">Server Capacity&lt;/option>
+                        &lt;option value="access">Access (Antennas) Capacity&lt;/option>
+                    &lt;/select>
+                &lt;/div>
+
+                &lt;div className="row g-2">
+                    {/* Target Value */}
+                    &lt;div className="col-6">
+                        &lt;label className="form-label small fw-bold text-muted mb-1">Target Value&lt;/label>
+                        &lt;input
+                            type="number"
+                            step={stepValue}
+                            className="form-control form-control-sm"
+                            value={simConfig.target}
+                            onChange={(e) => handleSimConfigChange("target", e.target.value)}
+                            onKeyDown={handleKeyDown}
+                        />
+                    &lt;/div>
+
+                    {/* Step Size */}
+                    &lt;div className="col-6 position-relative">
+                        &lt;div className="d-flex align-items-center justify-content-between">
+                            &lt;label className="form-label small fw-bold text-muted mb-1">Step Size&lt;/label>
+
+                            {/* HELPER BADGE USING ACTION COLOR */}
+                            &lt;span
+                                className="badge rounded-pill"
+                                style={{ backgroundColor: UI_COLORS.actionButton, cursor: 'help' }}
+                                title={isFloatAllowed
+                                    ? "Recommended: 0.1 - 0.5"
+                                    : "Recommended: 5 - 50"}
+                            >
+                                ℹ️ Info
+                            &lt;/span>
+                        &lt;/div>
+
+                        &lt;input
+                            type="number"
+                            step={stepValue}
+                            className={`form-control form-control-sm ${error ? "is-invalid" : ""}`}
+                            value={simConfig.step}
+                            onChange={(e) => handleSimConfigChange("step", e.target.value)}
+                            onKeyDown={handleKeyDown}
+                        />
+                    &lt;/div>
+                &lt;/div>
+
+                {/* ERROR MESSAGE */}
+                {error &amp;&amp; (
+                    &lt;div className="alert alert-danger mt-3 py-2 px-3 small d-flex align-items-center mb-0 animate__animated animate__headShake">
+                        &lt;span className="me-2">⚠️&lt;/span>
+                        &lt;strong>{error}&lt;/strong>
+                    &lt;/div>
+                )}
+
+            &lt;/div>
+        &lt;/>
+    );
+};
+
+export default SimulationControlConfig;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#CHART_COLORS">CHART_COLORS</a></li><li><a href="global.html#Chart">Chart</a></li><li><a href="global.html#CompactGroupConfig">CompactGroupConfig</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#HistoryDrawer">HistoryDrawer</a></li><li><a href="global.html#InfoTooltip">InfoTooltip</a></li><li><a href="global.html#PRESETS">PRESETS</a></li><li><a href="global.html#ResourceConfig">ResourceConfig</a></li><li><a href="global.html#ScenarioConfig">ScenarioConfig</a></li><li><a href="global.html#SimulationControlConfig">SimulationControlConfig</a></li><li><a href="global.html#UI_COLORS">UI_COLORS</a></li><li><a href="global.html#generateAndDownloadCSV">generateAndDownloadCSV</a></li><li><a href="global.html#useSimulationLogic">useSimulationLogic</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Fri Jan 23 2026 22:30:11 GMT+0200 (Χειμερινή ώρα Ανατολικής Ευρώπης)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

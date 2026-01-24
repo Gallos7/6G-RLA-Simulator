@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/HistoryDrawer.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/HistoryDrawer.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { useState } from 'react';
+import { UI_COLORS } from '../data/presets'; // &lt;--- IMPORT COLORS
+
+/**
+ * Component: HistoryDrawer
+ * A sliding drawer component that displays the simulation history archive.
+ *
+ * Features:
+ * 1. Split-pane layout: List of past simulations (Left) vs Detailed Preview (Right).
+ * 2. Visual Consistency: Uses the global UI_COLORS gradients and action colors.
+ * 3. Interaction: Allows users to inspect past parameters and restore (Load) a state.
+ *
+ * @param {boolean} isOpen - Controls the visibility of the drawer overlay.
+ * @param {Function} onClose - Handler to close the drawer.
+ * @param {Array} historyItems - List of historical simulation records from the backend.
+ * @param {Function} onLoad - Handler to restore the selected historical state to the active app.
+ */
+const HistoryDrawer = ({
+    isOpen,
+    onClose,
+    historyItems,
+    onLoad
+}) => {
+
+    const [selectedItem, setSelectedItem] = useState(null);
+
+    if (!isOpen) return null;
+
+    // Helper to format ISO timestamps into a readable local string
+    const formatDate = (iso) => new Date(iso).toLocaleString('el-GR', {
+        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+    });
+
+    return (
+        // BACKDROP OVERLAY
+        &lt;div
+            style={{
+                position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1050,
+                display: 'flex', justifyContent: 'flex-end'
+            }}
+            onClick={onClose}
+        >
+            {/* DRAWER CONTAINER */}
+            &lt;div
+                className="shadow-lg h-100 d-flex flex-column animate__animated animate__slideInRight bg-body text-body"
+                style={{ width: '85%', maxWidth: '1100px' }}
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* HEADER - Uses UI_COLORS.primaryGradient */}
+                &lt;div className="p-3 d-flex justify-content-between align-items-center border-bottom shadow-sm"
+                    style={{ background: UI_COLORS.primaryGradient, color: '#fff' }}>
+                    &lt;div className="d-flex align-items-center gap-2">
+                        &lt;span style={{ fontSize: '1.5rem' }}>📜&lt;/span>
+                        &lt;h5 className="m-0 fw-bold">Simulation History Archive&lt;/h5>
+                    &lt;/div>
+                    &lt;button onClick={onClose} className="btn-close btn-close-white">&lt;/button>
+                &lt;/div>
+
+                {/* MAIN CONTENT BODY */}
+                &lt;div className="d-flex flex-grow-1" style={{ overflow: 'hidden' }}>
+
+                    {/* A. LEFT COLUMN: HISTORY LIST */}
+                    &lt;div className="border-end overflow-auto" style={{ width: '35%' }}>
+                        {historyItems.length === 0 ? (
+                            &lt;div className="p-5 text-center text-muted">No history found yet.&lt;/div>
+                        ) : (
+                            &lt;div className="list-group list-group-flush">
+                                {historyItems.map((item, idx) => {
+                                    const isActive = selectedItem === item;
+                                    return (
+                                        &lt;button
+                                            key={idx}
+                                            className={`list-group-item list-group-item-action py-3 ${isActive ? 'active-item' : ''}`}
+                                            onClick={() => setSelectedItem(item)}
+                                            style={isActive ? {
+                                                background: UI_COLORS.secondaryGradient,
+                                                color: '#fff',
+                                                borderLeft: `5px solid ${UI_COLORS.actionButton}` // Accent border on active item
+                                            } : {}}
+                                        >
+                                            &lt;div className="d-flex w-100 justify-content-between">
+                                                &lt;small className={isActive ? 'text-white-50' : 'text-muted'}>
+                                                    {formatDate(item.timestamp)}
+                                                &lt;/small>
+                                                {item.inputs &amp;&amp; item.inputs.enableNoise &amp;&amp; &lt;span>📶&lt;/span>}
+                                            &lt;/div>
+                                            &lt;h6 className="mb-1 fw-bold mt-1">
+                                                {item.scenario === 'custom' ? '🔧 CUSTOM SETUP' : `📦 ${item.scenario?.toUpperCase()}`}
+                                            &lt;/h6>
+                                            &lt;small className={isActive ? 'text-white-50' : 'text-muted'}>
+                                                Var: {item.variable || 'N/A'} ➔ Target: {item.target || 'N/A'}
+                                            &lt;/small>
+                                        &lt;/button>
+                                    );
+                                })}
+                            &lt;/div>
+                        )}
+                    &lt;/div>
+
+                    {/* B. RIGHT COLUMN: PREVIEW DETAILS */}
+                    &lt;div className="p-4 flex-grow-1 overflow-auto bg-body-tertiary">
+
+                        {selectedItem ? (
+                            &lt;div className="animate__animated animate__fadeIn">
+
+                                {/* ACTION BAR */}
+                                &lt;div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary-subtle">
+                                    &lt;h4 className="fw-bold m-0" style={{ color: UI_COLORS.actionButton }}>Experiment Details&lt;/h4> {/* Turquoise Title */}
+
+                                    {/* LOAD BUTTON - Uses UI_COLORS.actionButton */}
+                                    &lt;button
+                                        className="btn fw-bold px-4 shadow"
+                                        onClick={() => { onLoad(selectedItem); onClose(); }}
+                                        style={{
+                                            backgroundColor: UI_COLORS.actionButton,
+                                            color: UI_COLORS.actionText,
+                                            border: 'none'
+                                        }}
+                                    >
+                                        📥 LOAD SETUP
+                                    &lt;/button>
+                                &lt;/div>
+
+                                {/* INFO CARDS GRID */}
+                                &lt;div className="row g-3">
+                                    &lt;div className="col-md-6">
+                                        &lt;div className="card shadow-sm h-100 border-0">
+                                            {/* Card Header with Secondary Gradient */}
+                                            &lt;div className="card-header fw-bold small text-white"
+                                                style={{ background: UI_COLORS.secondaryGradient }}>
+                                                📡 NETWORK RESOURCES
+                                            &lt;/div>
+                                            &lt;div className="card-body">
+                                                {selectedItem.inputs &amp;&amp; selectedItem.inputs.a_resource ? (
+                                                    &lt;>
+                                                        &lt;div className="mb-2">&lt;strong>Fronthaul:&lt;/strong> {selectedItem.inputs.a_resource[0]}&lt;/div>
+                                                        &lt;div className="mb-2">&lt;strong>Server:&lt;/strong> {selectedItem.inputs.a_resource[1]}&lt;/div>
+                                                        &lt;div>&lt;strong>Antennas:&lt;/strong> {selectedItem.inputs.a_resource.slice(2).join(', ')}&lt;/div>
+                                                    &lt;/>
+                                                ) : &lt;span className="text-danger">Invalid Data&lt;/span>}
+                                            &lt;/div>
+                                        &lt;/div>
+                                    &lt;/div>
+
+                                    &lt;div className="col-md-6">
+                                        &lt;div className="card shadow-sm h-100 border-0">
+                                            &lt;div className="card-header fw-bold small text-white"
+                                                style={{ background: UI_COLORS.secondaryGradient }}>
+                                                ⚙️ ENVIRONMENT
+                                            &lt;/div>
+                                            &lt;div className="card-body">
+                                                {selectedItem.inputs ? (
+                                                    &lt;>
+                                                        &lt;div className="mb-2">&lt;strong>Load:&lt;/strong> {selectedItem.inputs.load} Erlang&lt;/div>
+                                                        &lt;div className="mb-2">&lt;strong>Step Size:&lt;/strong> {selectedItem.step}&lt;/div>
+                                                        &lt;div>&lt;strong>Noise:&lt;/strong> {selectedItem.inputs.enableNoise ? "ON" : "OFF"}&lt;/div>
+                                                    &lt;/>
+                                                ) : &lt;span className="text-danger">Invalid Data&lt;/span>}
+                                            &lt;/div>
+                                        &lt;/div>
+                                    &lt;/div>
+                                &lt;/div>
+
+                                {/* RESOURCE MATRIX TABLE */}
+                                &lt;div className="mt-4">
+                                    &lt;h6 className="fw-bold mb-3" style={{ color: '#546e7a' }}>REQUESTED RESOURCES MATRIX&lt;/h6>
+                                    {selectedItem.inputs &amp;&amp; selectedItem.inputs.r_resource ? (
+                                        &lt;div className="table-responsive rounded shadow-sm border-0">
+                                            &lt;table className="table table-sm text-center mb-0 align-middle table-hover">
+                                                &lt;thead className="text-white" style={{ background: UI_COLORS.secondaryGradient }}>
+                                                    &lt;tr>&lt;th>Svc&lt;/th>&lt;th>FH&lt;/th>&lt;th>Srv&lt;/th>&lt;th>A1&lt;/th>&lt;th>A2&lt;/th>&lt;th>A3&lt;/th>&lt;/tr>
+                                                &lt;/thead>
+                                                &lt;tbody className="bg-white">
+                                                    {selectedItem.inputs.r_resource.map((row, i) => (
+                                                        &lt;tr key={i}>
+                                                            &lt;td className="fw-bold" style={{ color: UI_COLORS.actionButton }}>S{i + 1}&lt;/td>
+                                                            {row.map((v, j) => &lt;td key={j}>{v}&lt;/td>)}
+                                                        &lt;/tr>
+                                                    ))}
+                                                &lt;/tbody>
+                                            &lt;/table>
+                                        &lt;/div>
+                                    ) : &lt;div className="alert alert-warning">Matrix data missing&lt;/div>}
+                                &lt;/div>
+
+                            &lt;/div>
+                        ) : (
+                            &lt;div className="h-100 d-flex flex-column align-items-center justify-content-center opacity-50">
+                                &lt;h1 style={{ fontSize: '4rem' }}>📜&lt;/h1>
+                                &lt;h4 className="mt-3">Select a scenario&lt;/h4>
+                                &lt;p>Choose from the list on the left to view details.&lt;/p>
+                            &lt;/div>
+                        )}
+                    &lt;/div>
+                &lt;/div>
+            &lt;/div>
+        &lt;/div>
+    );
+};
+
+export default HistoryDrawer;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#CHART_COLORS">CHART_COLORS</a></li><li><a href="global.html#Chart">Chart</a></li><li><a href="global.html#CompactGroupConfig">CompactGroupConfig</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#HistoryDrawer">HistoryDrawer</a></li><li><a href="global.html#InfoTooltip">InfoTooltip</a></li><li><a href="global.html#PRESETS">PRESETS</a></li><li><a href="global.html#ResourceConfig">ResourceConfig</a></li><li><a href="global.html#ScenarioConfig">ScenarioConfig</a></li><li><a href="global.html#SimulationControlConfig">SimulationControlConfig</a></li><li><a href="global.html#UI_COLORS">UI_COLORS</a></li><li><a href="global.html#generateAndDownloadCSV">generateAndDownloadCSV</a></li><li><a href="global.html#useSimulationLogic">useSimulationLogic</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Fri Jan 23 2026 22:30:11 GMT+0200 (Χειμερινή ώρα Ανατολικής Ευρώπης)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

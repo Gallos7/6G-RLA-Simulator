@@ -1,0 +1,312 @@
+/**
+ * Global Stylesheet (index.css)
+ * * This file handles the application's core visual design system.
+ * It implements a CSS Variable-based theming engine to switch between 
+ * Light and Dark modes seamlessly.
+ *
+ * Structure:
+ * 1. CSS Variables (Theming Definitions)
+ * 2. Global Resets & Body Styles
+ * 3. Component-Specific Styles (Cards, Tables, Charts)
+ * 4. Utility Classes & Helper modifications
+ */
+
+/* --- 1. CSS VARIABLES (THEMING) --- */
+
+:root {
+  /* Light Mode (Default) */
+  --bg-body: #f0f2f5;
+  --bg-card: #ffffff;
+  --bg-surface: #f8f9fa;
+  --text-main: #212529;
+  --text-muted: #6c757d;
+  --border-color: #dee2e6;
+  --border-light: rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+
+  /* Gradients & Colors */
+  --primary-gradient: linear-gradient(135deg, #1a237e 0%, #4a148c 100%);
+  --secondary-gradient: linear-gradient(135deg, #37474f 0%, #546e7a 100%);
+  --action-btn-bg: #fff;
+  --action-btn-text: #009688;
+
+  /* Table specific */
+  --table-head-bg: #f8fafc;
+  --table-hover: #f1f5f9;
+}
+
+/* Dark Mode Overrides */
+/* Applied when the parent container has data-bs-theme="dark" */
+[data-bs-theme="dark"] {
+  --bg-body: #121212;
+  --bg-card: #1e1e1e;
+  --bg-surface: #2d3748;
+
+  /* Dark blue-gray shade for resource boxes */
+  --text-main: #e0e0e0;
+  --text-muted: #a0aec0;
+  --border-color: #4a5568;
+  --border-light: #333;
+  --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.3);
+
+  --action-btn-bg: #00b894;
+  --action-btn-text: #ffffff;
+
+  --table-head-bg: #2d3748;
+  --table-hover: #2d3748;
+}
+
+/* --- 2. GLOBAL STYLES --- */
+body {
+  background-color: var(--bg-body);
+  color: var(--text-main);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.app-container {
+  min-height: 100vh;
+  background-color: var(--bg-body);
+  color: var(--text-main);
+  transition: background-color 0.3s ease;
+}
+
+/* --- 3. COMPONENT CLASSES --- */
+
+/* Navbar */
+.navbar-custom {
+  background: var(--primary-gradient);
+  z-index: 1020;
+}
+
+.btn-theme-toggle {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  min-width: 90px;
+  backdrop-filter: blur(5px);
+  border: none;
+}
+
+.btn-run {
+  background-color: var(--action-btn-bg);
+  color: var(--action-btn-text);
+  border: none;
+  font-weight: bold;
+  padding: 0.5rem 1.5rem;
+  transition: all 0.2s;
+}
+
+/* Cards */
+.card-custom {
+  background-color: var(--bg-card);
+  border: none;
+  border-radius: 8px;
+  height: 100%;
+}
+
+.card-header-primary {
+  background: var(--primary-gradient);
+  color: white;
+  font-weight: bold;
+  padding: 1rem;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.card-header-secondary {
+  background: var(--secondary-gradient);
+  color: white;
+  font-weight: bold;
+  padding: 1rem;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+/* Resource Config Boxes */
+.resource-box {
+  background-color: var(--bg-surface);
+  /* Adapts automatically to dark/light theme */
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* Table Styles */
+.data-table-container {
+  overflow-x: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-card);
+}
+
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  background-color: var(--bg-card);
+  color: var(--text-main);
+}
+
+.custom-table thead tr {
+  background-color: var(--table-head-bg);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.custom-table th {
+  padding: 16px;
+  font-weight: 700;
+}
+
+.custom-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.custom-table tbody tr:hover {
+  background-color: var(--table-hover);
+}
+
+/* Chart Container */
+.chart-container {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  height: 450px;
+  width: 100%;
+}
+
+/* Form Selects inside tables */
+.table-select {
+  background-color: var(--bg-surface);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  text-align: center;
+  font-weight: bold;
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+
+/* Scrollbar styling for webkit */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-body);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* --- 4. UTILITY CLASSES --- */
+
+/* Small section headers (e.g., EXPERIMENT SETUP) */
+.section-header {
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: bold;
+  opacity: 0.75;
+  margin-bottom: 1rem;
+}
+
+/* Badge with question mark icon */
+.badge-help {
+  cursor: help;
+  font-size: 0.6rem;
+  background-color: var(--text-muted);
+  color: #fff;
+}
+
+/* Special input group for Noise notation (e-) */
+.input-group-text-themed {
+  background-color: var(--bg-surface);
+  color: var(--text-muted);
+  border-color: var(--border-color);
+  font-weight: bold;
+}
+
+/* Small width select (used for exponents) */
+.w-55px {
+  max-width: 55px;
+}
+
+/* Form check input (Switch) scaling */
+.form-check-scale {
+  transform: scale(0.9);
+  cursor: pointer;
+}
+
+/* General Utilities */
+.cursor-default {
+  cursor: default;
+}
+
+/* --- NAVBAR BUTTONS (SPECIAL STYLES) --- */
+
+/* 1. RUN BUTTON */
+.btn-run-custom {
+  background-color: #00b894 !important;
+  color: #ffffff !important;
+  border: none;
+  font-weight: 700;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.btn-run-custom:hover:not(:disabled) {
+  background-color: #00a383 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.btn-run-custom:disabled {
+  background-color: #636e72 !important;
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 2. THESIS BUTTON */
+.btn-thesis-custom {
+  background-color: transparent !important;
+  color: #ffda79 !important;
+  border: 2px solid #ffda79 !important;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-thesis-custom:hover {
+  background-color: #ffda79 !important;
+  color: #2d3436 !important;
+  box-shadow: 0 0 10px rgba(255, 218, 121, 0.5);
+}
+
+/* 3. THEME TOGGLE: Glassy Style */
+.btn-theme-custom {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  color: #ffffff !important;
+  backdrop-filter: blur(4px);
+  transition: all 0.2s ease;
+}
+
+.btn-theme-custom:hover {
+  background-color: rgba(255, 255, 255, 0.3) !important;
+  border-color: #ffffff !important;
+}

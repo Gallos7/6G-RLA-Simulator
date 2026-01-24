@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: App.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: App.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import "bootstrap/dist/css/bootstrap.min.css";
+import "./App.css";
+import "./index.css";
+import { UI_COLORS } from "./data/presets";
+import { HistoryDrawer, ResourceConfig, ScenarioConfig, CompactGroupConfig, SimulationControlConfig, Header, Chart } from "./components";
+import useSimulationLogic from "./hooks/useSimulationLogic";
+
+/**
+ * Main Application Component.
+ * Acts as the root container for the application layout.
+ * It integrates the simulation logic hook and distributes state/handlers to child components.
+ *
+ * Layout Structure:
+ * - Header: Navigation and global controls.
+ * - Left Column: Configuration inputs (Scenario, Resources, Simulation Control).
+ * - Right Column: Results visualization (Chart &amp; Data).
+ * - HistoryDrawer: Overlay for viewing past simulations.
+ */
+function App() {
+  
+  const {
+    inputs, selectedScenario, theme, simConfig, error, loading, results, historyData, isHistoryOpen,
+    runSimulation, toggleTheme, fetchHistory, handleServiceCountChange, handleMatrixChange, handleResourceSelect, handleLoadHistory,
+    handleScenarioChange, handleInputChange, handleCheckboxChange, handleSimConfigChange, setIsHistoryOpen
+  } = useSimulationLogic();
+
+
+  return (
+    &lt;div className="app-container"
+      data-bs-theme={theme}
+      style={{
+        minHeight: "100vh",
+        backgroundColor: theme === "dark" ? "#121212" : "#f0f2f5",
+        color: theme === "dark" ? "#e0e0e0" : "#212529",
+        transition: "background-color 0.3s, color 0.3s"
+      }}
+    >
+
+      {/* HEADER (NAVBAR) */}
+      &lt;Header
+        theme={theme}
+        error={error}
+        loading={loading}
+        toggleTheme={toggleTheme}
+        fetchHistory={fetchHistory}
+        runSimulation={runSimulation}
+      />
+
+      {/* MAIN GRID */}
+      &lt;div className="container-fluid mt-4 px-4">
+        &lt;div className="row g-4">
+
+          {/* LEFT COLUMN: CONFIGURATION */}
+          &lt;div className="col-md-4">
+            &lt;div className="card shadow-sm h-100 border-0 overflow-hidden">
+              {/* HEADER */}
+              &lt;div className="p-3 text-white fw-bold d-flex align-items-center"
+                style={{ background: UI_COLORS.primaryGradient }}>
+                ⚙️ Configuration
+              &lt;/div>
+
+              &lt;div className="card-body">
+                &lt;ScenarioConfig
+                  selectedScenario={selectedScenario}
+                  handleScenarioChange={handleScenarioChange}
+                />
+                &lt;CompactGroupConfig
+                  inputs={inputs}
+                  theme={theme}
+                  handleInputChange={handleInputChange}
+                  handleCheckboxChange={handleCheckboxChange}
+                />
+                &lt;ResourceConfig
+                  inputs={inputs}
+                  handleResourceSelect={handleResourceSelect}
+                  handleServiceCountChange={handleServiceCountChange}
+                  handleMatrixChange={handleMatrixChange}
+                  theme={theme}
+                />
+                &lt;hr className="opacity-25 my-4" />
+                &lt;SimulationControlConfig
+                  error={error}
+                  theme={theme}
+                  simConfig={simConfig}
+                  handleSimConfigChange={handleSimConfigChange}
+                />
+              &lt;/div>
+            &lt;/div>
+          &lt;/div>
+
+          {/* RIGHT COLUMN: RESULTS */}
+          &lt;div className="col-md-8">
+            &lt;div className="card shadow-sm h-100 border-0 overflow-hidden">
+
+              {/* HEADER */}
+              &lt;div className="p-3 text-white fw-bold d-flex align-items-center"
+                style={{ background: UI_COLORS.secondaryGradient }}>
+                📊 Results Visualization
+              &lt;/div>
+
+              &lt;Chart
+                theme={theme}
+                loading={loading}
+                results={results}
+                inputs={inputs}
+                simConfig={simConfig}
+                selectedScenario={selectedScenario}
+              />
+
+            &lt;/div>
+          &lt;/div>
+
+        &lt;/div>
+      &lt;/div>
+
+      {/* HISTORY DRAWER */}
+      &lt;HistoryDrawer
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        historyItems={historyData}
+        onLoad={handleLoadHistory}
+      />
+
+    &lt;/div>
+  );
+}
+
+export default App;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#CHART_COLORS">CHART_COLORS</a></li><li><a href="global.html#Chart">Chart</a></li><li><a href="global.html#CompactGroupConfig">CompactGroupConfig</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#HistoryDrawer">HistoryDrawer</a></li><li><a href="global.html#InfoTooltip">InfoTooltip</a></li><li><a href="global.html#PRESETS">PRESETS</a></li><li><a href="global.html#ResourceConfig">ResourceConfig</a></li><li><a href="global.html#ScenarioConfig">ScenarioConfig</a></li><li><a href="global.html#SimulationControlConfig">SimulationControlConfig</a></li><li><a href="global.html#UI_COLORS">UI_COLORS</a></li><li><a href="global.html#generateAndDownloadCSV">generateAndDownloadCSV</a></li><li><a href="global.html#useSimulationLogic">useSimulationLogic</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Fri Jan 23 2026 22:30:11 GMT+0200 (Χειμερινή ώρα Ανατολικής Ευρώπης)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

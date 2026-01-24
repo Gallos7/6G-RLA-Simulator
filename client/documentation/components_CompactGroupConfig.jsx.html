@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/CompactGroupConfig.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/CompactGroupConfig.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React from 'react';
+import { UI_COLORS } from "../data/presets";
+
+/**
+ * Component: CompactGroupConfig
+ * Renders the primary simulation configuration settings in a compact row.
+ *
+ * Sections:
+ * 1. Links (M): Read-only display of the network topology size.
+ * 2. Traffic Load: Main input for traffic intensity (Erlang).
+ * 3. Noise Config: Toggle switch and parameters for Gaussian noise injection.
+ *
+ * @param {Object} inputs - The current state of simulation inputs.
+ * @param {Function} handleInputChange - Handler for updating numeric fields (expects: field, value).
+ * @param {Function} handleCheckboxChange - Handler for toggling boolean flags (expects: category).
+ */
+const CompactGroupConfig = ({
+    inputs,
+    handleInputChange,
+    handleCheckboxChange,
+}) => {
+    return (
+        &lt;>
+            &lt;div className="resource-box mb-3">
+                &lt;div className="row g-2 align-items-end">
+
+                    {/* --- 1. NETWORK LINKS (M) --- */}
+                    {/* Read-only field displaying the number of active links in the topology */}
+                    &lt;div className="col-3">
+                        &lt;label className="form-label small fw-bold opacity-75 mb-1 d-block text-center">Links&lt;/label>
+                        &lt;input
+                            type="number"
+                            className="form-control text-center cursor-default py-1"
+                            value={inputs.M}
+                            disabled
+                            style={{ backgroundColor: 'rgba(0,0,0,0.05)', border: 'none' }}
+                        />
+                    &lt;/div>
+
+                    {/* --- 2. TRAFFIC LOAD (ERLANG) --- */}
+                    {/* Main input for Traffic Intensity. Includes validation to prevent invalid chars */}
+                    &lt;div className="col-4">
+                        &lt;label className="form-label small fw-bold mb-1 d-block text-center text-body">
+                            Traffic Load
+                        &lt;/label>
+                        &lt;input
+                            type="number"
+                            step="0.1"
+                            className="form-control text-center fw-bold py-1"
+                            min="1.0"
+                            value={inputs.load}
+                            onChange={(e) => handleInputChange("load", e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "-" || e.key === "+" || e.key === "e")
+                                    e.preventDefault();
+                            }}
+                        />
+                    &lt;/div>
+
+                    {/* --- 3. NOISE CONFIGURATION --- */}
+                    {/* Toggle switch for noise and conditional rendering of noise parameters */}
+                    &lt;div className="col-5">
+                        &lt;div className="d-flex flex-column align-items-center">
+                            &lt;div className="form-check form-switch mb-1">
+                                &lt;input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    role="switch"
+                                    checked={inputs.enableNoise}
+                                    onChange={() => handleCheckboxChange("enableNoise")}
+                                    style={inputs.enableNoise ? { backgroundColor: UI_COLORS.actionButton, borderColor: UI_COLORS.actionButton } : {}}
+                                />
+                                &lt;label className="form-check-label small fw-bold ms-2">Local Noise&lt;/label>
+                            &lt;/div>
+                        &lt;/div>
+
+                        {/* Noise Parameters: Mantissa &amp; Exponent (Visible only if Noise is Enabled) */}
+                        {inputs.enableNoise &amp;&amp; (
+                            &lt;div className="animate__animated animate__fadeIn mt-1">
+                                &lt;div className="input-group input-group-sm">
+                                    &lt;input
+                                        type="number"
+                                        className="form-control text-end fw-bold px-1"
+                                        placeholder="1"
+                                        value={inputs.noiseMantissa}
+                                        onChange={(e) => handleInputChange('noiseMantissa', e.target.value)}
+                                    />
+                                    &lt;span className="input-group-text px-1 border-start-0 border-end-0">e-&lt;/span>
+                                    &lt;select
+                                        className="form-select text-start fw-bold ps-1 pe-0 w-55px"
+                                        value={inputs.noiseExponent}
+                                        onChange={(e) => handleInputChange('noiseExponent', e.target.value)}
+                                    >
+                                        &lt;option value="04">04&lt;/option>
+                                        &lt;option value="05">05&lt;/option>
+                                        &lt;option value="06">06&lt;/option>
+                                        &lt;option value="07">07&lt;/option>
+                                    &lt;/select>
+                                &lt;/div>
+                            &lt;/div>
+                        )}
+                    &lt;/div>
+
+                    {/* --- FOOTER INFO --- */}
+                    {/* Static information regarding the topology structure */}
+                    &lt;div className="col-12">
+                        &lt;div className="form-text small opacity-50 mt-2 text-center fst-italic border-top pt-2">
+                            🔒 Topology: FH + Server + 3 Antennas
+                        &lt;/div>
+                    &lt;/div>
+                &lt;/div>
+            &lt;/div>
+        &lt;/>
+    );
+};
+
+export default CompactGroupConfig;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#CHART_COLORS">CHART_COLORS</a></li><li><a href="global.html#Chart">Chart</a></li><li><a href="global.html#CompactGroupConfig">CompactGroupConfig</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#HistoryDrawer">HistoryDrawer</a></li><li><a href="global.html#InfoTooltip">InfoTooltip</a></li><li><a href="global.html#PRESETS">PRESETS</a></li><li><a href="global.html#ResourceConfig">ResourceConfig</a></li><li><a href="global.html#ScenarioConfig">ScenarioConfig</a></li><li><a href="global.html#SimulationControlConfig">SimulationControlConfig</a></li><li><a href="global.html#UI_COLORS">UI_COLORS</a></li><li><a href="global.html#generateAndDownloadCSV">generateAndDownloadCSV</a></li><li><a href="global.html#useSimulationLogic">useSimulationLogic</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Fri Jan 23 2026 22:30:11 GMT+0200 (Χειμερινή ώρα Ανατολικής Ευρώπης)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

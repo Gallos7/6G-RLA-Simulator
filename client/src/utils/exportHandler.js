@@ -1,0 +1,147 @@
+/**
+ * Utility: Export Handler
+ * Responsible for generating and downloading the simulation report in CSV format.
+ *
+ * Thesis Context:
+ * This module ensures that experimental results are portable and can be further analyzed
+ * in external tools like Microsoft Excel or MATLAB. It handles data formatting specifically
+ * for European locales (using ';' as separator and ',' for decimals) to avoid parsing errors.
+ */
+
+/**
+ * Generates a structured CSV file from the simulation results and triggers a browser download.
+ *
+ * @param {Object} results - The simulation output object containing the chart data (x, y values).
+ * @param {Object} inputs - The state object with all input parameters (Resources, Matrix, Load).
+ * @param {Object} simConfig - Configuration for the simulation loop (Target, Step, Variable).
+ * @param {string} selectedScenario - The identifier of the scenario used (traceability).
+ */
+export const generateAndDownloadCSV = (results, inputs, simConfig, selectedScenario) => {
+    // Safety check: Ensure results exist before attempting to process data.
+    if (!results) return;
+
+    // Helper Function: 'toCsvNum'
+    // Converts decimal points (e.g., 4.5) to commas (e.g., 4,5).
+    // Rationale: In European Excel versions (e.g., Greek locale), the dot is interpreted as
+    // a thousands separator, which breaks floating-point numbers. Converting to comma fixes this.
+    const toCsvNum = (val) => {
+        if (val === undefined || val === null) return "";
+        return val.toString().replace('.', ',');
+    };
+
+    // Extract dynamic service keys (e.g., 'service_0', 'service_1') from the result dataset.
+    // We filter out 'x' because it represents the independent variable, not a service.
+    const dataKeys = results.chart_data.length > 0
+        ? Object.keys(results.chart_data[0]).filter(key => key !== 'x')
+        : [];
+
+    let csv = "";
+    const SEP = ";"; // CSV Separator: We use semi-colon ';' instead of comma ',' for Excel compatibility in EU regions.
+
+    // ==========================================
+    // SECTION 1: METADATA HEADER
+    // ==========================================
+    // Adds timestamp and scenario ID to the file header.
+    // This is crucial for reproducibility, allowing the researcher to know when and how the data was generated.
+    csv += `REPORT DATE${SEP}${new Date().toLocaleString("el-GR")}\n`;
+    csv += `SCENARIO ID${SEP}${selectedScenario || "custom"}\n`;
+    csv += "\n";
+
+    // ==========================================
+    // SECTION 2: EXPERIMENT CONFIGURATION
+    // ==========================================
+    // Logs the exact parameters used to run the simulation.
+    // This serves as a "snapshot" of the experiment state.
+    csv += "--- EXPERIMENT SETUP ---\n";
+    csv += `Variable Parameter${SEP}${simConfig.variable}\n`;
+
+    // Determine the starting value of the independent variable for the report
+    let startVal = inputs.load;
+    if (simConfig.variable === 'fronthaul') startVal = inputs.a_resource[0];
+    if (simConfig.variable === 'server') startVal = inputs.a_resource[1];
+    if (simConfig.variable === 'access') startVal = inputs.a_resource[2];
+
+    csv += `Start Value${SEP}${toCsvNum(startVal)}\n`;
+    csv += `Target Value${SEP}${toCsvNum(simConfig.target)}\n`;
+    csv += `Step Size${SEP}${toCsvNum(simConfig.step)}\n`;
+    csv += `Noise Enabled${SEP}${inputs.enableNoise ? "YES" : "NO"}\n`;
+
+    // Log noise parameters only if noise was actually applied
+    if (inputs.enableNoise) {
+        csv += `Noise Level${SEP}${inputs.noiseMantissa}e-${inputs.noiseExponent}\n`;
+    }
+    csv += "\n";
+
+    // ==========================================
+    // SECTION 3: NETWORK TOPOLOGY (CAPACITIES)
+    // ==========================================
+    // Exports the capacity vector (A_resource) for all links (Fronthaul, Server, Antennas).
+    csv += "--- AVAILABLE RESOURCES (Network Capacities) ---\n";
+    if (inputs.a_resource) {
+        csv += `Link 1 (Fronthaul)${SEP}${inputs.a_resource[0]}\n`;
+        csv += `Link 2 (Server)${SEP}${inputs.a_resource[1]}\n`;
+        csv += `Link 3 (Antenna 1)${SEP}${inputs.a_resource[2]}\n`;
+        // Handle potential extra links dynamically or fallback to antenna 1 capacity
+        csv += `Link 4 (Antenna 2)${SEP}${inputs.a_resource[3] || inputs.a_resource[2]}\n`;
+        csv += `Link 5 (Antenna 3)${SEP}${inputs.a_resource[4] || inputs.a_resource[2]}\n`;
+    }
+    csv += "\n";
+
+    // ==========================================
+    // SECTION 4: RESOURCE REQUIREMENTS MATRIX
+    // ==========================================
+    // Exports the 'b_kj' matrix, which defines how many resource units each service consumes on each link.
+    csv += "--- REQUESTED RESOURCES MATRIX (b_kj) ---\n";
+    csv += `Service ID${SEP}Link 1${SEP}Link 2${SEP}Link 3${SEP}Link 4${SEP}Link 5\n`;
+
+    if (inputs.r_resource) {
+        inputs.r_resource.forEach((row, idx) => {
+            // Join row elements with the separator to create a CSV line
+            csv += `Service ${idx + 1}${SEP}${row.join(SEP)}\n`;
+        });
+    }
+    csv += "\n";
+
+    // ==========================================
+    // SECTION 5: SIMULATION RESULTS DATA
+    // ==========================================
+    // The core dataset: Independent Variable (X) vs Blocking Probabilities (Y).
+    csv += "--- SIMULATION RESULTS ---\n";
+
+    // Construct dynamic headers: X-AXIS | Service 1 | Service 2 ...
+    const xLabelUpper = results.x_label ? results.x_label.toUpperCase() : "X-AXIS";
+    const resultHeaders = [xLabelUpper, ...dataKeys.map((_, i) => `Service ${i + 1} (%)`)];
+    csv += resultHeaders.join(SEP) + "\n";
+
+    // Iterate through chart data and format each row
+    results.chart_data.forEach(row => {
+        const xVal = toCsvNum(row.x);
+        const yVals = dataKeys.map(key => toCsvNum(row[key])); // Apply comma formatting to probabilities
+        csv += `${xVal}${SEP}${yVals.join(SEP)}\n`;
+    });
+
+    // ==========================================
+    // SECTION 6: FILE DOWNLOAD TRIGGER
+    // ==========================================
+    // Create a Blob with UTF-8 encoding.
+    // \uFEFF is the Byte Order Mark (BOM). It is strictly necessary to force Excel 
+    // to recognize the file as UTF-8 (handling Greek chars correctly).
+    const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    // Create a temporary hidden link element to trigger the download
+    const link = document.createElement("a");
+    link.href = url;
+
+    // Generate a descriptive filename: Full_Report_ScenarioName_YYYY-MM-DD.csv
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const scenarioName = selectedScenario || "custom";
+    const filename = `Full_Report_${scenarioName}_${dateStr}.csv`;
+
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+
+    // Programmatically click the link and cleanup
+    link.click();
+    document.body.removeChild(link);
+};
