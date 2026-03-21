@@ -1,5 +1,5 @@
 import React from 'react';
-import { PRESETS, UI_COLORS } from "../data/presets";
+import { PRESETS, UI_COLORS } from "../../data/presets";
 
 /**
  * Component: ScenarioConfig

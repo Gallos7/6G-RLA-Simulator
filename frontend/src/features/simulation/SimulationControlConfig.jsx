@@ -1,5 +1,5 @@
 import React from 'react';
-import { UI_COLORS } from "../data/presets"; // <--- IMPORT COLORS
+import { UI_COLORS } from "../../data/presets"; // <--- IMPORT COLORS
 
 /**
  * Component: SimulationControlConfig

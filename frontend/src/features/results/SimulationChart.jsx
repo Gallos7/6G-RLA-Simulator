@@ -1,7 +1,7 @@
 import React from "react";
-import { CHART_COLORS } from "../data/presets";
+import { CHART_COLORS } from "../../data/presets";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { generateAndDownloadCSV } from "../utils/exportHandler";
+import { generateAndDownloadCSV } from "../../utils/exportHandler";
 
 /**
  * Component: Chart (SimulationChartConfig)

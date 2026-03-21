@@ -1,99 +1,157 @@
-[🇬🇷 Διαβάστε στα Ελληνικά](./README-GR.md)
+# 6G RLA Simulator 📶
+
+> A modern, enterprise-grade simulation platform for resource allocation in 6G networks.
+
+This project is a full-stack scientific simulator designed to compute and visualize **Blocking Probability ($P_b$)** in next-generation telecommunication systems (6G). It implements a highly optimized **Reduced Load Approximation (RLA)** algorithm based on the **Kaufman-Roberts Formula (KRF)**.
 
 ---
 
-# 6G RLA Simulator (Resource Level Allocation)
+## 🎓 Academic Context & Authorship
 
-> **Bachelor's Thesis:** Simulation of Resource Allocation in 6G Networks
-> **Author:** Parissis Dimitrios (Computer Science Graduate)
-> **Supervisor:** Ioannis Vardakas
-> **Institution:** University of Western Macedonia, School of Science, Department of Informatics
+- **Thesis:** Simulation of Resource Allocation in 6G Networks  
+- **Author:** Parissis Dimitrios (Computer Science Graduate)  
+- **Supervisor:** Professor Ioannis Vardakas  
+- **Institution:** University of Western Macedonia, Department of Informatics  
 
----
-
-## ⚖️ Declaration of Authorship & Supervision
-
-To ensure clarity regarding the contribution of all parties involved:
-
-1.  **Thesis Supervision:** The original Bachelor's Thesis (Theoretical Analysis & initial Java Implementation — available within the application as a PDF) was conducted under the supervision of Professor **Ioannis Vardakas**.
-2.  **Software Implementation:** This specific software repository (**Full-Stack Web Simulator**: React, Python Flask, MongoDB) represents an independent evolution of the project. It was designed, architected, and developed **exclusively by Parissis Dimitrios**. No other individuals contributed to the modern software engineering, coding, or optimization of this web application.
+> *Note:* The theoretical analysis and initial Java prototype were developed under academic supervision.  
+> The full-stack architecture, modern web simulator (React, Flask, MongoDB), and UI/UX design were independently designed and implemented by the author.
 
 ---
 
-## 📖 Project Description
-This application is a scientific simulator designed to study the **Blocking Probability ($P_b$)** in next-generation telecommunication networks (6G).
+## 📸 Dashboard Preview
 
-The simulator solves the resource allocation problem in **Multi-rate Loss Systems** using iterative algorithms, while taking into account physical layer factors such as **Thermal Noise** and **Interference**.
+> *(Add a screenshot or GIF of your app here)*
 
-The platform allows the user to parameterize network link capacities (Fronthaul, Server, Antennas) and service requirements, execute experiments in real-time, and export data for further analysis.
-
----
-
-## 🚀 Technologies & Architecture
-
-The system follows a three-tier **Microservices Architecture**:
-
-### 1. Frontend (Client)
-* **React.js (Vite):** High-performance modern User Interface (UI).
-* **Recharts:** Library for dynamic data visualization (Line Charts).
-* **Bootstrap 5:** Responsive design framework.
-* **Axios:** Handling asynchronous communication with the Backend API.
-
-### 2. Backend (Server)
-* **Python (Flask):** REST API Server executing the business logic.
-* **NumPy:** Utilizes vectorization for rapid execution of mathematical models.
-* **Algorithms:** Implementation of Kaufman-Roberts (KRF) and Reduced Load Approximation (RLA) with numerical stability protections.
-
-### 3. Database & Caching
-* **MongoDB:** NoSQL database for storing experiment history.
-* **Smart Caching:** Before executing an experiment, the system checks if it has been run before with identical parameters. If so, it retrieves results from the database ($O(1)$ time), avoiding redundant calculations.
+![6G Simulator Dashboard Preview](./public/dashboard-preview.png)
 
 ---
 
-## 🔬 Scientific Methodology
+## ✨ Key Features
 
-The simulation core is based on the following mathematical models:
+- **📊 Multi-Rate Loss System Engine**  
+  Computes end-to-end blocking probabilities across complex topologies (Fronthaul, Servers, Antennas) supporting multiple service classes simultaneously.
 
-1.  **Kaufman-Roberts Formula (KRF):**
-    Recursive calculation of the occupancy distribution for a single link.
-2.  **Reduced Load Approximation (RLA):**
-    Iterative method (Erlang Fixed Point Approximation) to find the network equilibrium.
-3.  **End-to-End Blocking (BPC):**
-    Aggregation of blocking probabilities across all links in a path.
+- **⚡ Dynamic Noise Injection**  
+  Simulates real-world interference using configurable Gaussian noise parameters integrated directly into the capacity model.
 
----
+- **🛡️ High-Load Stability (Damping Factor)**  
+  Applies a damping factor (0.5) to the Erlang Fixed Point algorithm, ensuring convergence and eliminating oscillations under extreme loads (>1000 Erlang).
 
-## ⚙️ Note on Implementation & Differences from Thesis
+- **💾 O(1) Smart Caching (MongoDB)**  
+  Identical simulations are cached. Re-running the same scenario instantly returns results without recomputation.
 
-This application represents the **Software Implementation** of the Bachelor's Thesis.
-However, the code has undergone **further technical optimizations** compared to the initial academic study to ensure maximum numerical stability under extreme load conditions.
-
-Specifically, the following mechanisms have been introduced (which may not be detailed in the thesis text, as they strictly concern programming stability):
-
-### 1. Numerical Stability (Dynamic Scaling)
-In networks with very high load (>1000 Erlang), state probabilities can exceed floating-point limits. A **Dynamic Scaling** mechanism was applied to the KRF algorithm to prevent `Overflow` while maintaining accurate ratios.
-
-### 2. Oscillation Damping
-A **Damping Factor (0.5)** was introduced to the Erlang Fixed Point algorithm to eliminate oscillations during convergence in high-congestion scenarios.
-
-### 3. Stricter Convergence Criteria
-This version requires **absolute convergence** (`tolerance < 0.0001`) for every service on every link individually, as opposed to looser average-error methods used in standard implementations.
-
-> **Observation:** Due to these accuracy improvements, the simulation results may show slight deviations (typically slightly higher/more conservative Blocking values) compared to the static charts presented in the Thesis PDF.
+- **📈 Visualization & Export**  
+  Interactive charts (Recharts) with instant CSV export (EU format), compatible with MATLAB and Excel.
 
 ---
 
-## 🛠️ Installation Instructions
+## 🏗️ Tech Stack & Architecture
 
-### Step 1: Database (MongoDB)
-Ensure the MongoDB service is running locally (`localhost:27017`).
-The application will automatically create the database: `Reduced_Load_Approximation_Kaufman_Roberts`.
+This project follows a **Monorepo / Feature-Driven Architecture**, cleanly separating the UI from the computational engine.
 
-### Step 2: Backend (Server)
-Open a terminal in the `server/` directory:
+### 🔧 Backend (Service-Oriented API)
+
+- **Framework:** Python / Flask  
+- **Database:** MongoDB (PyMongo)  
+- **Math Engine:** NumPy (vectorized operations)  
+
+```text
+backend/
+├── app/
+│   ├── api/          # REST API routes
+│   ├── core/         # Mathematical engine (RLA, KRF, BPC)
+│   ├── db/           # MongoDB access layer
+│   └── services/     # Business logic & orchestration
+├── requirements.txt
+└── .env              # Environment configuration
+```
+
+---
+
+### 🎨 Frontend (Feature-Driven UI)
+
+- **Framework:** React 19 + Vite  
+- **Styling:** Bootstrap 5 + Custom CSS Variables (Dark/Light Mode)  
+- **Charts:** Recharts  
+
+```text
+frontend/
+├── src/
+│   ├── components/   # Reusable UI components
+│   ├── features/     # Domain-specific modules
+│   ├── hooks/        # State management hooks
+│   ├── pages/        # Main dashboard views
+│   └── services/     # API communication (Axios)
+└── package.json
+```
+
+---
+
+## 🚀 Installation & Setup
+
+### Prerequisites
+
+- Node.js 18+  
+- Python 3.10+  
+- MongoDB running locally on port `27017`  
+
+---
+
+### 1️⃣ Backend Setup
+
 ```bash
-# Install required libraries
-pip install flask flask-cors pymongo numpy
+# Navigate to backend
+cd backend
 
-# Start the Server
-python server.py
+# Create & activate virtual environment
+python -m venv venv
+source venv/bin/activate        # Windows: .\venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Create .env file and add:
+# MONGO_URI=mongodb://localhost:27017/
+# MONGO_DB_NAME=Reduced_Load_Approximation_Kaufman_Roberts
+
+# Navigate to backend
+cd backend
+
+# Start Development Server
+python -m main
+```
+
+Backend runs at: **http://localhost:5000**
+
+---
+
+### 2️⃣ Frontend Setup
+
+Open a new terminal:
+
+```bash
+# Navigate to frontend
+cd frontend
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
+
+Frontend runs at: **http://localhost:5173**
+
+---
+
+## 📌 Notes
+
+- Designed for **6G network research and simulation**
+- Optimized for **high computational loads**
+- Built with emphasis on **performance, accuracy, and usability**
+
+---
+
+<div align="center">
+  <p><i>Built with precision for 6G Telecommunication Research</i></p>
+</div>

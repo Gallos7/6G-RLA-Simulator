@@ -1,6 +1,6 @@
 import React from "react";
 import { useState } from 'react';
-import { UI_COLORS } from "../data/presets";
+import { UI_COLORS } from "../../data/presets";
 
 /**
  * Component: Header (Navbar)

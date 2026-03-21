@@ -1,9 +1,4 @@
-from pymongo import MongoClient
-from datetime import datetime
-import numpy as np
-
-class DBManager:
-    """
+"""
     Database Manager Class.
     Handles all interactions with the MongoDB database using the 'pymongo' driver.
     
@@ -15,18 +10,31 @@ class DBManager:
     This separation allows efficiently querying for existing configurations without loading heavy result datasets.
     """
 
+from pymongo import MongoClient
+from datetime import datetime
+import numpy as np
+import os
+from dotenv import load_dotenv
+
+# Load the environment variables from the .env file
+load_dotenv()
+
+class DBManager:
+    """
+    Data Access Layer (DAL): MongoDB Manager.
+    """
     def __init__(self):
-        """
-        Initialize the database connection.
-        Connects to the local MongoDB instance on port 27017.
-        """
         try:
-            self.conn = MongoClient("localhost", 27017)
-            print("✅ DBManager Connected successfully!")
+            # Safely fetch credentials from .env, with a fallback just in case
+            mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
+            db_name = os.getenv("MONGO_DB_NAME", "Reduced_Load_Approximation_Kaufman_Roberts")
+            
+            self.conn = MongoClient(mongo_uri)
+            print("✅ DBManager Connected successfully via .env!")
         except Exception as e:
             print("❌ Could not connect to MongoDB:", e)
 
-        self.db = self.conn["Reduced_Load_Approximation_Kaufman_Roberts"]
+        self.db = self.conn[db_name]
         self.configs_col = self.db["Experiments_Config"]
         self.results_col = self.db["Experiment_Data"]
 

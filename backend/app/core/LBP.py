@@ -1,6 +1,6 @@
 import numpy as np
 import math as m
-import KRF as Kaufman
+from app.core import KRF as Kaufman
 
 class LBP:
     """

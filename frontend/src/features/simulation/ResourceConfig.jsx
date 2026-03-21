@@ -1,20 +1,6 @@
 import React from 'react';
-import { UI_COLORS } from "../data/presets"; // <--- IMPORT COLORS
-
-/**
- * Component: InfoTooltip
- * A small helper component to display context hints.
- * Visual Style: Uses the global 'actionButton' color for consistency.
- */
-const InfoTooltip = ({ text }) => (
-    <span
-        className="ms-1"
-        style={{ cursor: 'help', fontSize: '0.9em', color: UI_COLORS.actionButton }}
-        title={text}
-    >
-        ⓘ
-    </span>
-);
+import { UI_COLORS } from "../../data/presets"; // <--- IMPORT COLORS
+import InfoTooltip from "../../components/ui/InfoTooltip";
 
 /**
  * Component: ResourceConfig
