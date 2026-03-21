@@ -30,3 +30,6 @@ yarn-error.log*
 # --- IDE Settings (Optional - VS Code) ---
 .vscode/
 .idea/
+
+# --- README.md in Greek
+README-GR.md
