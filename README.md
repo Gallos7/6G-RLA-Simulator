@@ -20,7 +20,7 @@ This project is a full-stack scientific simulator designed to compute and visual
 
 ## 📸 Dashboard Preview
 
-<video src="https://github.com/user-attachments/assets/1fc9c9c2-b082-4a28-a954-7e7b35495df9" controls="controls" muted="muted" style="max-height: 600px; width: 100%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></video>
+https://github.com/user-attachments/assets/ed830773-ad6c-49c0-87b2-df4cfc8b2274
 
 ---
 
